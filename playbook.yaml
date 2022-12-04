@@ -91,7 +91,7 @@
         when: is_root_password_set.rc == 0
 
       - name: Generate myapp\_rw password
-        shell: tr -d -c "a-zA-Z0-9" < /dev/urandom | head -c 10
+        shell: tr -dc A-Za-z0-9 </dev/urandom | head -c 13
         register: mysql_myapp_rw_password
         when: is_root_password_set.rc == 0
 
@@ -101,7 +101,13 @@
           name: myapp_rw
           password: "{{mysql_myapp_rw_password}}"
           priv: myapp.*:SELECT,INSERT,UPDATE,DELETE
-          login_user:
+          login_user: User1
           login_password: "{{mysql_root_password.stdout}}"
           state: present
         when: is_root_password_set.rc == 0
+
+      - name: Inform user of mysql User1 password
+        debug:
+          msg: "MariaDB root password was set to {{mysql_myapp_rw_password}}"
+        when: is_root_password_set.rc == 0
+
